@@ -13,37 +13,37 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  // Title: Fokus pada 'Authority' dan 'All-in-One Solution'
-  title: "Vittya | The Next-Gen Digital Invitation & Wedding Management",
+  // Title: Fokus pada 'High-End Experience' & 'Flawless execution'
+  // Psikologi: Menyerang keinginan calon pengantin untuk terlihat 'Sempurna' di mata tamu.
+  title: "Vittya | Pionir Digital Wedding Experience yang Berkelas & Presisi",
   
-  // Description: Menonjolkan Trust (No. 1) dan Efisiensi
-  description: "Platform undangan digital #1 dengan sistem Cinema-Style Seating dan AI Storyteller. Solusi modern, elegan, dan terpercaya untuk manajemen tamu pernikahan yang sempurna.",
+  // Description: Fokus pada 'Social Status' & 'Zero Failure'
+  // Psikologi: Menghilangkan kecemasan akan momen yang berantakan (Fear of Embarrassment).
+  description: "Jangan biarkan hari besar Anda menjadi biasa. Vittya menyempurnakan setiap detail pernikahan melalui teknologi cerdas, memastikan tamu merasa spesial dan Anda tetap memegang kendali penuh.",
   
   keywords: [
-    "digital invitation", 
-    "undangan digital premium", 
-    "wedding seating chart", 
-    "cinema seating wedding", 
-    "AI wedding planner", 
-    "manajemen tamu pernikahan",
-    "vittya"
+    "premium wedding invitation",
+    "undangan digital eksklusif",
+    "manajemen tamu cerdas",
+    "vittya wedding ecosystem",
+    "pengalaman pernikahan mewah"
   ],
 
-  // Open Graph: Visual Trust saat di-share
   openGraph: {
-    title: "Vittya | Professional Wedding Management Platform",
-    description: "Nikmati kemudahan mengatur tamu dan membuat cerita cinta unik dengan teknologi AI terbaru.",
+    // Psikologi: Fokus pada 'Standard Baru' (Trendsetter)
+    title: "Vittya: Standar Baru Pernikahan Modern & Elegan",
+    description: "Satu platform untuk mengelola kebahagiaan. Dari undangan AI hingga manajemen tamu yang presisi, buat setiap detik pernikahan Anda tak terlupakan.",
     url: "https://vittya-app.vercel.app",
-    siteName: "Vittya Platform",
+    siteName: "Vittya Elite",
     images: [
       {
         url: "/logo-Vittya.png", 
         width: 1200,
         height: 630,
-        alt: "Vittya - Professional Wedding Experience",
+        alt: "Vittya - The New Era of Wedding",
       },
     ],
-    locale: "id_ID", // Tetap id_ID untuk target pasar utama lo, tapi title sudah Universal.
+    locale: "id_ID",
     type: "website",
   },
 
