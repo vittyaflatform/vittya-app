@@ -12,10 +12,8 @@ import {
   LayoutDashboard,
   QrCode,
   TicketPercent,
-  Bell,
   Search,
   ExternalLink,
-  Calendar,
   Trash2,
   TrendingUp,
   Settings,
@@ -48,7 +46,7 @@ export default function Dashboard() {
     const initData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        router.push("/login");
+        window.location.href = "/login";
         return;
       }
       setUser(user);
@@ -73,7 +71,18 @@ export default function Dashboard() {
       setLoading(false);
     };
     initData();
-  }, [router, supabase]);
+  }, [supabase]);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch (error) {
+      toast.error("Logout failed");
+      setLoggingOut(false);
+    }
+  };
 
   const handleDeleteProject = async (projectId: string) => {
     if (!confirm("PERINGATAN: Hapus total project ini? Semua foto di storage dan data tamu akan lenyap selamanya!")) return;
@@ -99,7 +108,14 @@ export default function Dashboard() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcfcfd]">
       <div className="relative flex items-center justify-center">
         <div className="absolute size-24 rounded-full border-4 border-indigo-50 border-t-indigo-600 animate-spin" />
-        <Image src="/logo-Vittya.png" width={40} height={40} alt="Vittya" className="animate-pulse" />
+        <Image 
+          src="/logo-Vittya.png" 
+          width={40} 
+          height={40} 
+          alt="Vittya" 
+          className="animate-pulse" 
+          priority // Prioritas tinggi karena ini loader utama
+        />
       </div>
       <p className="mt-12 font-bold text-slate-400 tracking-widest text-xs uppercase">Initializing Experience</p>
     </div>
@@ -113,7 +129,13 @@ export default function Dashboard() {
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="flex items-center gap-3 group">
               <div className="relative size-11 flex items-center justify-center overflow-hidden rounded-2xl bg-indigo-600 shadow-xl shadow-indigo-200 transition-transform group-hover:rotate-6">
-                <Image src="/logo-Vittya.png" fill className="object-cover p-1.5 invert" alt="Logo" />
+                <Image 
+                  src="/logo-Vittya.png" 
+                  fill 
+                  sizes="44px" // Nav icon fix
+                  className="object-cover p-1.5 invert" 
+                  alt="Logo" 
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-black tracking-tighter text-slate-900 leading-none">VITTYA</span>
@@ -130,26 +152,27 @@ export default function Dashboard() {
                 </p>
                 <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-tighter">Verified Partner</p>
               </div>
-              <div className="size-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-md">
+              <div className="size-9 bg-linear-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-md">
                 {(user?.user_metadata?.full_name || user?.email)?.charAt(0).toUpperCase()}
               </div>
             </div>
+            
             <button 
-              onClick={() => supabase.auth.signOut().then(() => router.push("/login"))}
-              className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all disabled:opacity-50"
             >
-              <LogOut size={22} />
+              {loggingOut ? <Loader2 size={22} className="animate-spin text-red-600" /> : <LogOut size={22} />}
             </button>
           </div>
         </div>
       </nav>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        {/* --- HERO GREETING --- */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div className="animate-in fade-in slide-in-from-left-6 duration-1000">
             <h2 className="text-5xl font-black tracking-tight text-slate-900 md:text-6xl">
-              Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">{user?.user_metadata?.full_name?.split(" ")[0] || "Chief"}</span>!
+              Hello, <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500">{user?.user_metadata?.full_name?.split(" ")[0] || "Chief"}</span>!
             </h2>
             <p className="mt-4 text-slate-500 font-medium text-lg">Kelola setiap detail momen bahagia dengan standar nomor satu.</p>
           </div>
@@ -160,14 +183,14 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* --- ANALYTICS CARDS (GLASSMORPISM) --- */}
+        {/* --- ANALYTICS CARDS --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
           {[
             { label: "Active Project", val: projects.length, icon: LayoutDashboard, color: "bg-indigo-600" },
             { label: "Guest Check-in", val: "0", icon: QrCode, color: "bg-purple-600" },
             { label: "Referral Valid", val: "0", icon: TicketPercent, color: "bg-pink-600" }
           ].map((stat, i) => (
-            <div key={i} className="group relative bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm transition-all hover:shadow-2xl hover:shadow-indigo-500/5">
+            <div key={i} className="group relative bg-white p-8 rounded-4xl border border-slate-100 shadow-sm transition-all hover:shadow-2xl hover:shadow-indigo-500/5">
               <div className={`size-14 ${stat.color} rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-3`}>
                 <stat.icon size={26} />
               </div>
@@ -196,31 +219,42 @@ export default function Dashboard() {
 
           {projects.length === 0 ? (
             <div className="h-96 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-[40px] bg-white/50 animate-in fade-in zoom-in-95">
-              <div className="size-24 bg-white rounded-[32px] flex items-center justify-center shadow-xl mb-8">
+              <div className="size-24 bg-white rounded-4xl flex items-center justify-center shadow-xl mb-8">
                 <Plus size={40} className="text-slate-200" />
               </div>
               <p className="text-slate-400 font-black uppercase tracking-widest text-sm text-center">Belum ada mahakarya.<br/><Link href="/dashboard/create" className="text-indigo-600 hover:underline">Mulai sekarang.</Link></p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {projects.map((p) => (
+              {projects.map((p, idx) => (
                 <div key={p.id} className="group relative bg-white rounded-[40px] overflow-hidden border border-slate-100 shadow-sm transition-all hover:shadow-2xl hover:shadow-indigo-500/10">
-                  <div className="aspect-[4/5] relative overflow-hidden">
+                  <div className="aspect-4/5 relative overflow-hidden">
                     {p.groom_photo ? (
-                      <Image src={p.groom_photo} alt="Hero" fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
+                      <Image 
+                        src={p.groom_photo} 
+                        alt="Hero" 
+                        fill 
+                        priority={idx === 0} // Fix LCP: Prioritaskan item pertama
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Fix missing sizes
+                        className="object-cover transition-transform duration-1000 group-hover:scale-110" 
+                      />
                     ) : (
                       <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
-                        <Image src="/logo-Vittya.png" width={80} height={80} alt="Vittya" className="grayscale opacity-10" />
+                        <Image 
+                          src="/logo-Vittya.png" 
+                          width={80} 
+                          height={80} 
+                          alt="Vittya" 
+                          className="grayscale opacity-10" 
+                        />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/20 to-transparent" />
-                    
+                    <div className="absolute inset-0 bg-linear-to-t from-slate-900/95 via-slate-900/20 to-transparent" />
                     <div className="absolute top-6 right-6">
                       <div className="bg-white/10 backdrop-blur-md border border-white/20 p-2 rounded-2xl text-white">
                         <Settings size={18} className="animate-[spin_4s_linear_infinite]" />
                       </div>
                     </div>
-
                     <div className="absolute bottom-8 left-8 right-8">
                       <div className="flex items-center gap-2 mb-4">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -251,7 +285,6 @@ export default function Dashboard() {
                         {deletingId === p.id ? <Loader2 className="animate-spin" size={18} /> : <Trash2 size={20} />}
                       </Button>
                     </div>
-
                     <Link href={`/dashboard/project/${p.id}`}>
                       <Button className="w-full h-14 rounded-2xl bg-slate-950 hover:bg-indigo-600 text-white font-black uppercase tracking-widest text-xs transition-all group/btn shadow-xl shadow-slate-100">
                         Manage Invitation <ChevronRight size={16} className="ml-2 transition-transform group-hover/btn:translate-x-1" />
@@ -267,7 +300,12 @@ export default function Dashboard() {
 
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-2 opacity-30 grayscale">
-          <Image src="/logo-Vittya.png" width={24} height={24} alt="Logo" />
+          <Image 
+            src="/logo-Vittya.png" 
+            width={24} 
+            height={24} 
+            alt="Logo" 
+          />
           <span className="text-xs font-black tracking-widest">VITTYA CORE SYSTEM v1.0</span>
         </div>
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">© 2026 Vittya Digital | DWI Excellence #1</p>

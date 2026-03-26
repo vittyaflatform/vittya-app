@@ -15,8 +15,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         ref={ref}
         {...props}
-        // SOLUSI ERROR NULL: Pakai ?? ""
-        value={props.value ?? ""}
       />
     )
   }

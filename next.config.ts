@@ -12,38 +12,31 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "hvxmxcvoozefolmnwned.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
-    deviceSizes: [640, 750, 828, 1080, 1200], // Optimasi ukuran gambar sesuai gadget user
+    deviceSizes: [640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96],
   },
 
-  // ✅ 2. KEAMANAN & PERFORMA
   reactStrictMode: true,
-  poweredByHeader: false, // Sembunyikan info server (Keamanan)
+  poweredByHeader: false,
 
-  // ✅ 3. OPTIMASI BUILD (Khusus Mac M1)
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production", // Hapus console.log di production biar rapi
+    // Menghapus console.log otomatis saat build production
+    removeConsole: process.env.NODE_ENV === "production",
   },
 
-  // ✅ 4. CUSTOM HEADERS (Enterprise Standard)
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: [
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "origin-when-cross-origin",
-          },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "origin-when-cross-origin" },
         ],
       },
     ];
