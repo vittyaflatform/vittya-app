@@ -225,7 +225,7 @@ export default function StoryPage() {
   return (
     <div className="min-h-screen bg-[#FDF8F3] pb-32">
       {/* HEADER */}
-      <header className="sticky top-0 z-100 bg-[#FDF8F3]/80 backdrop-blur-md border-b border-[#E8DFD3] px-6 py-6 mb-12">
+      <header className="sticky top-0 z-[100] mb-12 border-b border-[#E8DFD3] bg-[#FDF8F3]/80 px-6 py-6 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex items-center gap-6">
           <Image src="/logo-Vittya.png" alt="Vittya" width={50} height={50} />
           <div className="h-10 w-px bg-[#E8DFD3]" />
@@ -364,7 +364,7 @@ export default function StoryPage() {
       </main>
 
       {/* SYNC INDICATOR */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 px-8 py-3 bg-[#1A4D2E] text-white rounded-full shadow-2xl flex items-center gap-4 z-100 border border-[#C5A371]/30">
+      <div className="fixed bottom-8 left-1/2 z-[100] flex items-center gap-4 rounded-full border border-[#C5A371]/30 bg-[#1A4D2E] px-8 py-3 text-white shadow-2xl -translate-x-1/2">
         <RefreshCw size={14} className="animate-spin text-[#C5A371]" />
         <p className="text-[9px] font-black uppercase tracking-[0.3em] italic">Vittya Archive Synchronized</p>
       </div>

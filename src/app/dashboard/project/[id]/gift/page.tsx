@@ -81,7 +81,8 @@ export default function GiftPage() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (user) setUserId(user.id);
+      if (!user) return;
+      setUserId(user.id);
 
       const [giftRes, wishRes, invRes] = await Promise.all([
         supabase
@@ -98,6 +99,7 @@ export default function GiftPage() {
           .from("invitations")
           .select("gift_address, gift_receiver_name, is_gift_enabled")
           .eq("id", projectId)
+          .eq("user_id", user.id)
           .single(),
       ]);
 
@@ -128,6 +130,13 @@ export default function GiftPage() {
 
   const handleSaveSettings = async () => {
     setSaving(true);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      return;
+    }
     const { error } = await supabase
       .from("invitations")
       .update({
@@ -135,7 +144,8 @@ export default function GiftPage() {
         gift_receiver_name: receiverName,
         is_gift_enabled: isGiftEnabled,
       })
-      .eq("id", projectId);
+      .eq("id", projectId)
+      .eq("user_id", user.id);
     if (error) toast.error("Update Failed");
     else toast.success("Settings Updated!");
     setSaving(false);
@@ -260,7 +270,7 @@ export default function GiftPage() {
   return (
     <div className="min-h-screen bg-[#FDF8F3] text-[#1A4D2E] pb-32">
       {/* BRANDED HEADER */}
-      <header className="sticky top-0 z-100 bg-[#FDF8F3]/80 backdrop-blur-md border-b border-[#E8DFD3] px-6 py-4">
+      <header className="sticky top-0 z-[100] bg-[#FDF8F3]/80 backdrop-blur-md border-b border-[#E8DFD3] px-6 py-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
             <Image
@@ -578,7 +588,7 @@ export default function GiftPage() {
       </main>
 
       {/* SYNC INDICATOR */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 px-8 py-3 bg-[#1A4D2E] text-[#FDF8F3] rounded-full shadow-2xl flex items-center gap-4 z-100 border border-[#C5A371]/30">
+      <div className="fixed bottom-8 left-1/2 z-[100] flex items-center gap-4 rounded-full border border-[#C5A371]/30 bg-[#1A4D2E] px-8 py-3 text-[#FDF8F3] shadow-2xl -translate-x-1/2">
         <RefreshCw size={14} className="animate-spin text-[#C5A371]" />
         <p className="text-[9px] font-bold uppercase tracking-[0.3em] italic">
           Vittya Cloud Synchronized

@@ -61,10 +61,16 @@ export default function MultiStreamingPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data } = await supabase
         .from("invitations")
         .select("streaming_links, is_streaming_active")
         .eq("id", projectId)
+        .eq("user_id", user.id)
         .single();
 
       if (data) {
@@ -99,6 +105,13 @@ export default function MultiStreamingPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      return;
+    }
 
     const { error } = await supabase
       .from("invitations")
@@ -106,7 +119,8 @@ export default function MultiStreamingPage() {
         streaming_links: streams,
         is_streaming_active: isActive,
       })
-      .eq("id", projectId);
+      .eq("id", projectId)
+      .eq("user_id", user.id);
 
     if (!error) toast.success("Broadcast status updated!");
     else toast.error("Error: " + error.message);

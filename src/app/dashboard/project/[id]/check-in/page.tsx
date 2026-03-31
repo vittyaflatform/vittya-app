@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import SafeHydration from "@/components/system/SafeHydration";
 import QRCode from "react-qr-code";
 import { cn } from "@/lib/utils";
 
@@ -75,12 +76,17 @@ export default function CheckInDashboardPage() {
 
   const fetchData = useCallback(async () => {
     if (!projectId) return;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
 
     const [projectRes, guestsRes] = await Promise.all([
       supabase
         .from("invitations")
         .select("id, slug, checkin_pin, groom_name")
         .eq("id", projectId)
+        .eq("user_id", user.id)
         .single(),
       supabase
         .from("guests")
@@ -129,10 +135,15 @@ export default function CheckInDashboardPage() {
 
   const handleUpdatePin = async () => {
     if (newPin.length < 4) return toast.error("PIN minimal 4 digit");
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
     const { error } = await supabase
       .from("invitations")
       .update({ checkin_pin: newPin })
-      .eq("id", projectId);
+      .eq("id", projectId)
+      .eq("user_id", user.id);
     if (!error) {
       toast.success("PIN Diupdate!");
       setProjectData((prev) =>
@@ -296,10 +307,15 @@ export default function CheckInDashboardPage() {
                           {g.name}
                         </p>
                         <p className="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-tighter">
-                          {new Date(g.attended_at).toLocaleTimeString("id-ID", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}{" "}
+                          <SafeHydration fallback="--:--">
+                            {new Date(g.attended_at).toLocaleTimeString(
+                              "id-ID",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </SafeHydration>{" "}
                           WIB • {g.category}
                         </p>
                       </div>

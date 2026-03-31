@@ -58,10 +58,16 @@ export default function EventPage() {
   const getData = useCallback(async () => {
     if (!projectId) return;
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from("invitations")
         .select("*")
         .eq("id", projectId)
+        .eq("user_id", user.id)
         .single();
       if (!error && data) {
         const formatDate = (dateStr: string | null) =>
@@ -99,6 +105,11 @@ export default function EventPage() {
   const handleSave = async () => {
     setLoading(true);
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Unauthorized");
+
       const { error } = await supabase
         .from("invitations")
         .update({
@@ -115,7 +126,8 @@ export default function EventPage() {
           reception_address: reception.address,
           reception_map_link: reception.map,
         })
-        .eq("id", projectId);
+        .eq("id", projectId)
+        .eq("user_id", user.id);
 
       if (!error) {
         toast.success("Schedule Synchronized!", {
@@ -460,7 +472,7 @@ export default function EventPage() {
         </div>
 
         {/* SAVE BAR */}
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-100 w-full max-w-lg px-6">
+        <div className="fixed bottom-10 left-1/2 z-[100] w-full max-w-lg -translate-x-1/2 px-6">
           <Button
             onClick={handleSave}
             disabled={loading}

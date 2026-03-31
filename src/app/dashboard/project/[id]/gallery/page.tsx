@@ -79,7 +79,7 @@ function SortablePhoto({ item, onDelete, isOverlay = false }: { item: GalleryIte
       className={cn(
         "group relative aspect-3/4 bg-white rounded-[2.5rem] overflow-hidden shadow-xl transition-all border-4",
         isDragging ? "opacity-30 scale-95 border-transparent" : "border-transparent hover:border-[#1A4D2E]/10 hover:shadow-2xl hover:-translate-y-1",
-        isOverlay && "opacity-100 scale-105 shadow-2xl border-[#C5A371] rotate-2 z-100"
+        isOverlay && "opacity-100 scale-105 shadow-2xl border-[#C5A371] rotate-2 z-[100]"
       )}
     >
       <div {...attributes} {...listeners} className="absolute top-5 left-5 z-30 bg-[#1A4D2E] text-white p-3 rounded-2xl cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-all shadow-lg">
@@ -120,7 +120,16 @@ export default function GalleryPage() {
 
   const fetchGallery = useCallback(async () => {
     if (!projectId) return;
-    const { data: invite } = await supabase.from("invitations").select("user_id").eq("id", projectId).single();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: invite } = await supabase
+      .from("invitations")
+      .select("user_id")
+      .eq("id", projectId)
+      .eq("user_id", user.id)
+      .single();
     const { data: photos } = await supabase.from("gallery_photos").select("*").eq("invitation_id", projectId).order("position", { ascending: true });
     if (invite) setUserId(invite.user_id);
     if (photos) setGallery(photos as GalleryItem[]);
@@ -198,7 +207,7 @@ export default function GalleryPage() {
     >
       {/* NATIVE DROP OVERLAY */}
       {isDragOver && (
-        <div className="fixed inset-0 z-200 flex items-center justify-center pointer-events-none p-10">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none p-10">
           <div className="w-full h-full border-8 border-dashed border-[#C5A371] rounded-[5rem] bg-[#1A4D2E]/90 flex flex-col items-center justify-center gap-6 animate-in zoom-in duration-300">
             <div className="bg-white p-8 rounded-full shadow-2xl animate-bounce">
               <UploadCloud size={64} className="text-[#1A4D2E]" />

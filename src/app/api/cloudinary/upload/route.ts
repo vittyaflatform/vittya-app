@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { createClient } from "@/lib/supabase/server";
+import { cloudinaryUploadSchema } from "@/lib/types";
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -25,14 +26,30 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
-    const invitationId = formData.get("invitationId") as string;
-    const assetType = formData.get("assetType") as string;
+    const { invitationId, assetType } = cloudinaryUploadSchema.parse({
+      invitationId: formData.get("invitationId"),
+      assetType: formData.get("assetType"),
+    });
 
     // ✅ 2. VALIDASI INPUT KETAT
     if (!file || !invitationId || !assetType) {
       return NextResponse.json(
         { error: "Missing required upload parameters." },
         { status: 400 },
+      );
+    }
+
+    const { data: ownedProject } = await supabase
+      .from("invitations")
+      .select("id")
+      .eq("id", invitationId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!ownedProject) {
+      return NextResponse.json(
+        { error: "Forbidden project upload target." },
+        { status: 403 },
       );
     }
 

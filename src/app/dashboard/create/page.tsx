@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { createProjectSchema } from "@/lib/types";
 import { Loader2, ArrowLeft, Sparkles, Link as LinkIcon } from "lucide-react";
 
 export default function CreateProject() {
@@ -60,7 +61,23 @@ export default function CreateProject() {
     setMsg(null);
 
     // Pastikan slug final benar-benar bersih sebelum dikirim
-    const finalSlug = formatSlug(slug);
+    const parsed = createProjectSchema.safeParse({
+      groom,
+      bride,
+      slug: formatSlug(slug),
+    });
+
+    if (!parsed.success) {
+      setMsg({
+        type: "error",
+        text:
+          parsed.error.issues[0]?.message ?? "Data project tidak valid.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    const finalSlug = parsed.data.slug;
 
     if (finalSlug.length < 3) {
       setMsg({

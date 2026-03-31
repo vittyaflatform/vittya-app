@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import SafeHydration from "@/components/system/SafeHydration";
 import { createClient } from "@/lib/supabase/client";
 import {
   CalendarDays,
@@ -58,8 +59,18 @@ export default function OverviewPage() {
   const fetchDashboardData = useCallback(async () => {
     if (!projectId) return;
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
       const [invRes, guestRes, commRes] = await Promise.all([
-        supabase.from("invitations").select("*").eq("id", projectId).single(),
+        supabase
+          .from("invitations")
+          .select("*")
+          .eq("id", projectId)
+          .eq("user_id", user.id)
+          .single(),
         supabase
           .from("guests")
           .select("pax, has_attended")
@@ -132,9 +143,10 @@ export default function OverviewPage() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  const invUrl = data
-    ? `${window.location.origin}/invitation/${data.slug || data.id}`
-    : "";
+  const invUrl =
+    typeof window !== "undefined" && data
+      ? `${window.location.origin}/invitation/${data.slug || data.id}`
+      : "";
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700 pb-20">
@@ -218,7 +230,9 @@ export default function OverviewPage() {
                 <span>Kelengkapan</span>
                 <span>{progress}%</span>
               </div>
-              <Progress value={progress} className="h-3" />
+              <SafeHydration fallback={<Progress value={0} className="h-3" />}>
+                <Progress value={progress} className="h-3" />
+              </SafeHydration>
             </div>
             <Link href={`/dashboard/project/${projectId}${nextAction.link}`}>
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-indigo-50 transition-all group flex items-center gap-4">

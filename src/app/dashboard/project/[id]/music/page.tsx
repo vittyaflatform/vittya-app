@@ -189,10 +189,15 @@ export default function MusicPage() {
   useEffect(() => {
     const getData = async () => {
       if (!projectId) return;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
       const { data } = await supabase
         .from("invitations")
         .select("music_url, music_start, music_end")
         .eq("id", projectId)
+        .eq("user_id", user.id)
         .single();
 
       if (data) {
@@ -304,6 +309,15 @@ export default function MusicPage() {
 
     setLoading(true);
     const finalEnd = range[1] >= maxDuration ? 0 : range[1];
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoading(false);
+      toast.error("Sesi login berakhir. Silakan masuk kembali.");
+      return;
+    }
 
     const { error } = await supabase
       .from("invitations")
@@ -312,7 +326,8 @@ export default function MusicPage() {
         music_start: range[0],
         music_end: finalEnd,
       })
-      .eq("id", projectId);
+      .eq("id", projectId)
+      .eq("user_id", user.id);
 
     if (!error) {
       router.refresh();
@@ -382,7 +397,7 @@ export default function MusicPage() {
             </button>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-lg shadow-slate-100/50 space-y-8 min-h-125">
+          <div className="min-h-[31.25rem] space-y-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-100/50">
             {/* 1. LIBRARY MODE (PRESET) */}
             {sourceType === "preset" && (
               <div className="animate-in fade-in space-y-4">

@@ -46,7 +46,16 @@ export default function QuotePage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await supabase.from("invitations").select("quote_text, quote_source").eq("id", projectId).single();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("invitations")
+        .select("quote_text, quote_source")
+        .eq("id", projectId)
+        .eq("user_id", user.id)
+        .single();
       if (data) {
         setQuoteText(data.quote_text || "");
         setQuoteSource(data.quote_source || "");
@@ -86,7 +95,18 @@ export default function QuotePage() {
 
   const handleSave = async () => {
     setSaving(true);
-    const { error } = await supabase.from("invitations").update({ quote_text: quoteText, quote_source: quoteSource }).eq("id", projectId);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      return;
+    }
+    const { error } = await supabase
+      .from("invitations")
+      .update({ quote_text: quoteText, quote_source: quoteSource })
+      .eq("id", projectId)
+      .eq("user_id", user.id);
     if (!error) toast.success("Spiritual words synchronized!");
     setSaving(false);
   };

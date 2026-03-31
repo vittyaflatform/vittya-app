@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useParams } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Loader2, Check, LayoutTemplate, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils"; // Pastikan punya utils ini (bawaan shadcn)
@@ -54,10 +53,15 @@ export default function ThemePage() {
   useEffect(() => {
     const getData = async () => {
       if (!projectId) return;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
       const { data } = await supabase
         .from("invitations")
         .select("theme")
         .eq("id", projectId)
+        .eq("user_id", user.id)
         .single();
 
       if (data) {
@@ -74,10 +78,19 @@ export default function ThemePage() {
     // Optimistic UI (Langsung ubah di layar biar cepet rasanya)
     setCurrentTheme(themeId);
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("invitations")
       .update({ theme: themeId })
-      .eq("id", projectId);
+      .eq("id", projectId)
+      .eq("user_id", user.id);
 
     if (!error) {
       router.refresh();

@@ -252,7 +252,7 @@ export default function ImageUpload({
       {/* MODAL CROPPER - DENGAN FIX Z-INDEX */}
       <Dialog open={showCropper} onOpenChange={setShowCropper}>
         {/* Tambahkan z-[200] supaya di atas Floating Save Button lo yang z-[101] */}
-        <DialogContent className="max-w-xl bg-[#FDF8F3] rounded-[3rem] overflow-hidden border-none p-0 shadow-2xl z-200">
+        <DialogContent className="max-w-xl bg-[#FDF8F3] rounded-[3rem] overflow-hidden border-none p-0 shadow-2xl z-[200]">
           <DialogHeader className="p-8 bg-[#1A4D2E] text-white">
             <DialogTitle className="font-serif italic text-3xl flex items-center gap-4">
               <CropIcon size={28} className="text-[#C5A371]" /> Refine Portrait

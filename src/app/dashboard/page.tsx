@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -20,6 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SafeHydration from "@/components/system/SafeHydration";
 import { toast } from "sonner";
 
 interface Project {
@@ -33,7 +33,6 @@ interface Project {
 }
 
 export default function Dashboard() {
-  const router = useRouter();
   const supabase = createClient();
 
   const [user, setUser] = useState<any>(null);
@@ -273,7 +272,26 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between mb-8">
                       <div className="flex flex-col">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Event Date</p>
-                        <p className="text-sm font-bold text-slate-900">{p.akad_date ? new Date(p.akad_date).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "Not Set"}</p>
+                        <SafeHydration
+                          fallback={
+                            <p className="text-sm font-bold text-slate-900">
+                              ...
+                            </p>
+                          }
+                        >
+                          <p className="text-sm font-bold text-slate-900">
+                            {p.akad_date
+                              ? new Date(p.akad_date).toLocaleDateString(
+                                  "id-ID",
+                                  {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                  },
+                                )
+                              : "Not Set"}
+                          </p>
+                        </SafeHydration>
                       </div>
                       <Button 
                         variant="ghost" 

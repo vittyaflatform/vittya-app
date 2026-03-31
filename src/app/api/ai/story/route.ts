@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { aiPromptSchema } from "@/lib/types";
 
 export async function POST(req: Request) {
   try {
-    const { prompt } = await req.json();
-
-    if (!prompt) {
-      return NextResponse.json({ error: "Prompt kosong" }, { status: 400 });
-    }
+    const { prompt } = aiPromptSchema.parse(await req.json());
 
     // Menggunakan gaya penulisan yang lebih premium sesuai screenshot Google AI Studio
     const systemPrompt = `Role: Vittya Emerald, a high-end wedding storyteller.

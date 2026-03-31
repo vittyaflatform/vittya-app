@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { registerSchema } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 
 export default function RegisterForm() {
@@ -46,14 +47,31 @@ export default function RegisterForm() {
     setLoading(true);
     setMsg(null);
 
-    const formData = new FormData(e.currentTarget);
-    const { error } = await supabase.auth.signUp({
-      email: formData.get("email") as string,
+    const formData = Object.fromEntries(new FormData(e.currentTarget));
+    const parsed = registerSchema.safeParse({
+      fullName: formData.fullName,
+      phone: formData.phone,
+      email: formData.email,
       password,
+      confirmPassword,
+    });
+
+    if (!parsed.success) {
+      setMsg({
+        type: "error",
+        text: parsed.error.issues[0]?.message ?? "Data tidak valid.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email: parsed.data.email,
+      password: parsed.data.password,
       options: {
         data: {
-          full_name: formData.get("fullName"),
-          phone_number: formData.get("phone"),
+          full_name: parsed.data.fullName,
+          phone_number: parsed.data.phone,
         },
       },
     });

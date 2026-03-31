@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { deleteProjectSchema } from "@/lib/types";
 import { v2 as cloudinary } from "cloudinary";
 import { NextResponse } from "next/server";
 
@@ -18,12 +19,18 @@ export async function POST(req: Request) {
     if (!user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { projectId } = await req.json();
-    if (!projectId)
-      return NextResponse.json(
-        { error: "Project ID required" },
-        { status: 400 },
-      );
+    const { projectId } = deleteProjectSchema.parse(await req.json());
+
+    const { data: ownedProject } = await supabase
+      .from("invitations")
+      .select("id")
+      .eq("id", projectId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!ownedProject) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     // --- STRATEGI 1: BERESIN CLOUDINARY (STORAGE) ---
     // Path folder: vittya/USER_ID/PROJECT_ID

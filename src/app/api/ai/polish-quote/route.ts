@@ -1,14 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { aiDraftSchema } from "@/lib/types";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { draft } = body;
-
-    if (!draft) {
-      return NextResponse.json({ error: "Draft kosong" }, { status: 400 });
-    }
+    const { draft } = aiDraftSchema.parse(await req.json());
 
     /**
      * PROMPT HAKIKI: 

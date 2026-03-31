@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { cloudinaryDeleteSchema } from "@/lib/types";
 import { v2 as cloudinary } from "cloudinary";
 import { NextResponse } from "next/server";
 
@@ -24,8 +25,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
-    const { publicId, resourceType = "image" } = body;
+    const { publicId, resourceType } = cloudinaryDeleteSchema.parse(
+      await req.json(),
+    );
 
     // ✅ 2. VALIDASI INPUT DASAR
     if (!publicId) {

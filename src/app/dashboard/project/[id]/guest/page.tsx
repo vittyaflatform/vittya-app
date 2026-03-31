@@ -98,11 +98,16 @@ export default function GuestPage() {
   const fetchGuests = useCallback(async () => {
     if (!projectId) return;
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
       const [inviteRes, guestsRes] = await Promise.all([
         supabase
           .from("invitations")
           .select("slug")
           .eq("id", projectId)
+          .eq("user_id", user.id)
           .single(),
         supabase
           .from("guests")
@@ -237,7 +242,7 @@ export default function GuestPage() {
                 </span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-white border-none rounded-[2.5rem] shadow-3xl p-0 overflow-hidden">
+            <DialogContent className="rounded-[2.5rem] border-none bg-white p-0 overflow-hidden shadow-[0_32px_80px_-24px_rgba(15,23,42,0.28)] sm:max-w-md">
               <div className="bg-[#1A4D2E] p-8 text-white">
                 <DialogHeader className="sr-only">
                   <DialogTitle>Guest Registration</DialogTitle>
@@ -573,7 +578,7 @@ export default function GuestPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
                             align="end"
-                            className="w-64 p-2 rounded-2xl border-2 border-[#E8DFD3] shadow-3xl"
+                            className="w-64 rounded-2xl border-2 border-[#E8DFD3] p-2 shadow-[0_32px_80px_-24px_rgba(15,23,42,0.28)]"
                           >
                             <DropdownMenuItem
                               onClick={() => {
@@ -628,7 +633,7 @@ export default function GuestPage() {
           open={!!selectedGuestQR}
           onOpenChange={() => setSelectedGuestQR(null)}
         >
-          <DialogContent className="max-w-105 bg-white border-none rounded-[3.5rem] p-0 overflow-hidden shadow-3xl">
+          <DialogContent className="max-w-[26.25rem] rounded-[3.5rem] border-none bg-white p-0 overflow-hidden shadow-[0_32px_80px_-24px_rgba(15,23,42,0.28)]">
             {/* Fix Accessibility Error: Menambahkan Title yang hanya dibaca oleh Screen Reader */}
             <DialogHeader className="sr-only">
               <DialogTitle>

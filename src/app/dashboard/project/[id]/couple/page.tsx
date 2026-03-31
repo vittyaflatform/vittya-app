@@ -38,10 +38,16 @@ export default function CouplePage() {
   const fetchData = useCallback(async () => {
     if (!projectId) return;
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from("invitations")
         .select("*")
         .eq("id", projectId)
+        .eq("user_id", user.id)
         .single();
 
       if (!error && data) {
@@ -72,10 +78,18 @@ export default function CouplePage() {
 
   const onSave = async () => {
     setSaving(true);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      return;
+    }
     const { error } = await supabase
       .from("invitations")
       .update(formData)
-      .eq("id", projectId);
+      .eq("id", projectId)
+      .eq("user_id", user.id);
 
     if (!error) {
       toast.success("Identity Secured!", {
@@ -99,7 +113,7 @@ export default function CouplePage() {
   return (
     <div className="min-h-screen bg-[#FDF8F3] text-[#1A4D2E] pb-40">
       {/* HEADER EXCLUSIVE */}
-      <header className="sticky top-0 z-100 bg-[#FDF8F3]/90 backdrop-blur-md border-b border-[#E8DFD3] px-6 py-4">
+      <header className="sticky top-0 z-[100] bg-[#FDF8F3]/90 backdrop-blur-md border-b border-[#E8DFD3] px-6 py-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
             <Image src="/logo-Vittya.png" alt="Vittya" width={50} height={50} />
