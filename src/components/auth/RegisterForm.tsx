@@ -264,6 +264,9 @@ export default function RegisterForm() {
               </Label>
               <Link
                 href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                prefetch={false}
                 className="font-bold text-emerald-600 underline underline-offset-4"
               >
                 Syarat & Ketentuan
@@ -271,6 +274,9 @@ export default function RegisterForm() {
               dan{" "}
               <Link
                 href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                prefetch={false}
                 className="font-bold text-emerald-600 underline underline-offset-4"
               >
                 Kebijakan Privasi
